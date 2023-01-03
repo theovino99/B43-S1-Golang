@@ -1,0 +1,40 @@
+form {
+    margin: auto;
+    max-width: 600px;
+    width: 100%;
+}
+
+form>div {
+    margin-top: 20px;
+}
+
+input,
+select,
+textarea {
+    width: 100%;
+    padding: 1rem 2rem;
+    border-radius: 32px;
+    border: 2px solid rgb(223, 223, 223);
+    /* border: none; */
+    background-color: #f7f7f7;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+    margin-top: 10px;
+}
+
+input::placeholder,
+select::placeholder,
+textarea::placeholder {
+    font-weight: 500;
+}
+
+label {
+    font-weight: bold;
+}
+
+textarea {
+    resize: none
+}
+
+button {
+    border: 0;
+}

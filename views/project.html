@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Contact Me</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"
+		integrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w=="
+		crossorigin="anonymous" referrerpolicy="no-referrer" />
+	<link href="/public/css/style.css" rel="stylesheet">
+	<link href="/public/css/myproject.css" rel="stylesheet">
+
+</head>
+
+<body>
+	<!-- Header -->
+	<nav class="nav-item">
+		<img src="/public/images/logo.png" alt="logoBrand" />
+		<ul class="nav-left">
+			<!-- <img src="/public/images/logo.png" alt="logoBrand" /> -->
+			<li>
+				<a class="" href="/">Home</a>
+			</li>
+			<li>
+				<a href="/project"> My Project </a>
+			</li>
+		</ul>
+
+		<div class="nav-right">
+			<a class="btn btn-primary" href="contact-form.html"> Contact Me</a>
+		</div>
+	</nav>
+
+	<!-- Main -->
+
+	<div class="container container-m-top">
+		<div class="card" style="display: flex; flex-direction: column;">
+			<h1 class="card-title" style="text-align: center;">CREATE NEW PROJECT</h1>
+
+			<form onsubmit="postProject(event)">
+
+				<!-- Title Form -->
+				<label for="projectTitle">Title
+					<input type="text" id="projectTitle" placeholder="Type title here...">
+				</label>
+
+				<!-- Start & End Form -->
+				<div class="form-group">
+					<label for="projectStart">Start Project
+						<input type="date" id="projectStart">
+					</label>
+					<label for="projectEnd">End Project
+						<input type="date" id="projectEnd">
+					</label>
+				</div>
+
+				<!-- Description Form -->
+				<label for="projectDescription">Description
+					<textarea type="text" id="projectDescription" placeholder="Type description here..."
+						rows="5"></textarea>
+				</label>
+
+				<div class="form-checkbox">
+					<label>Technologies</label>
+					<div class="form-group-checkbox">
+
+						<label for="angular">
+							<input type="checkbox" id="angular" class="checkboxProject" value="fa-brands fa-angular">
+							<span>Angular</span>
+						</label>
+
+						<label for="react-js">
+							<input type="checkbox" id="react-js" class="checkboxProject" value="fa-brands fa-react">
+							<span>React JS</span>
+						</label>
+						<label for="node-js">
+							<input type="checkbox" id="node-js" class="checkboxProject" value="fa-brands fa-node-js">
+							<span>Node JS</span>
+						</label>
+						<label for="vue-js">
+							<input type="checkbox" id="vue-js" class="checkboxProject" value="fa-brands fa-vuejs">
+							<span>Vue JS</span>
+						</label>
+					</div>
+				</div>
+
+				<label>Upload Image
+					<input type="file" id="projectImage" />
+				</label>
+
+				<div class="btn-group">
+					<button class="btn btn-primary" style="border: 0;" type="submit">SUBMIT</button>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<!-- project render -->
+	<div class="project-render">
+		<h1 class="card-title" style="text-align: center;">MY PROJECT</h1>
+
+		<div class="project-container" id="projectContainer">
+			<div class="card card-project" style="padding: 32px;">
+				<div class="card-project-img">
+					<img src="https://source.unsplash.com/640x480?programming" alt="project-image"
+						style="width: 100%; height: 100%; object-fit: cover;">
+				</div>
+				<div class="projectContentWrapper">
+					<a href="detail-project.html" class="card-project-title">Test Dummy</a>
+					<p class="card-project-duration">Duration : 3 Month</p>
+					<p class="card-project-desc">Lorem ipsum dolor sit amet consectetur adipisicing elit. Enim,
+						dignissimos!
+						Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ab, molestiae.</p>
+					<div class="card-project-icon">
+						<div class="project-item">
+							<i class="fa-brands fa-angular"></i>
+						</div>
+						<div class="project-item">
+							<i class="fa-brands fa-vuejs"></i>
+						</div>
+						<div class="project-item">
+							<i class="fa-brands fa-react"></i>
+						</div>
+						<div class="project-item">
+							<i class="fa-brands fa-node-js"></i>
+						</div>
+					</div>
+					<div class="btn-group" style="margin-top: 24px;">
+						<a href="#" class="btn btn-primary" style="border-radius: 12px; width: 100%;">EDIT</a>
+						<a href="#" class="btn btn-primary" style="border-radius: 12px; width: 100%;">DELETE</a>
+					</div>
+				</div>
+			</div>
+			<div class="card card-project">
+				something
+			</div>
+			<div class="card card-project">
+				something
+			</div>
+			<div class="card card-project">
+				something
+			</div>
+			<div class="card card-project">
+				something
+			</div>
+			<div class="card card-project">
+				something
+			</div>
+		</div>
+
+		<script src="/public/js/myproject.js"></script>
+
+</html>
