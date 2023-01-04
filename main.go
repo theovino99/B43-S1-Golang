@@ -1,7 +1,9 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"golang/connection"
 	"html/template"
 	"log"
 	"net/http"
@@ -19,8 +21,8 @@ var Data = map[string]interface{}{
 type dataProject struct {
 	ID          int
 	Name        string
-	Start       string
-	End         string
+	Start       time.Time
+	End         time.Time
 	Description string
 	Tech        []string
 	Duration    string
@@ -34,7 +36,7 @@ func main() {
 	route.PathPrefix("/public/").Handler(http.StripPrefix("/public/", http.FileServer(http.Dir("./public"))))
 
 	// Misc Page
-	route.HandleFunc("/", index).Methods("GET")
+	route.HandleFunc("/", home).Methods("GET")
 	route.HandleFunc("/contact", contact).Methods("GET")
 
 	// Project
@@ -49,7 +51,7 @@ func main() {
 	http.ListenAndServe("localhost:5000", route)
 }
 
-func index(w http.ResponseWriter, r *http.Request) {
+func home(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	// var tmpl, err = template.ParseFiles("views/index.html")
 
@@ -60,9 +62,31 @@ func index(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var result []dataProject
+
+	rows, err := connection.Conn.Query(context.Background(), "SELECT id,name,start_date, end_date,description FROM tb_projects")
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	for rows.Next() {
+		var each = dataProject{}
+
+		var err = rows.Scan(&each.ID, &each.Name, &each.Start, &each.End, &each.Description)
+		if err != nil {
+			fmt.Println(err.Error())
+			return
+		}
+
+		each.Duration = getDuration(each.Start, each.End)
+		result = append(result, each)
+	}
+
 	respData := map[string]interface{}{
 		"Data":     Data,
-		"Projects": Projects,
+		"Projects": result,
+		// "Projects": Projects,
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -86,49 +110,24 @@ func contact(w http.ResponseWriter, r *http.Request) {
 func projectAdd(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	var tmpl, err = template.ParseFiles("views/project.html")
+	var tmpl, err = template.ParseFiles("views/project-form.html")
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("message :" + err.Error()))
 		return
 	}
 
+	dataPage := map[string]interface{}{
+		"Title": "ADD MY PROJECT",
+		"url":   "/project/",
+	}
+
+	DataDetail := map[string]interface{}{
+		"Data": Data,
+		"Page": dataPage,
+	}
 	w.WriteHeader(http.StatusOK)
-	tmpl.Execute(w, Data)
-}
-
-func projectPost(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseForm()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	ProjName := r.PostForm.Get("project-name")
-	ProjStart := r.PostForm.Get("project-start")
-	ProjEnd := r.PostForm.Get("project-end")
-	ProjDescription := r.PostForm.Get("project-description")
-	ProjTech := r.Form["project-tech"]
-	ProjDuration := getDuration(ProjStart, ProjEnd)
-
-	var Project = dataProject{
-		Name:        ProjName,
-		Start:       ProjStart,
-		End:         ProjEnd,
-		Description: ProjDescription,
-		Tech:        ProjTech,
-		Duration:    ProjDuration,
-	}
-
-	fmt.Println("Project Name : ", Project.Name)
-	fmt.Println("Start Date   : ", Project.Start)
-	fmt.Println("End Date     : ", Project.End)
-	fmt.Println("Duration     : ", Project.Duration)
-	fmt.Println("Description  : ", Project.Description)
-	fmt.Println("Technologies : ", Project.Tech)
-	fmt.Println("================================")
-
-	Projects = append(Projects, Project)
-	http.Redirect(w, r, "/project", http.StatusMovedPermanently)
+	tmpl.Execute(w, DataDetail)
 }
 
 func projectDetail(w http.ResponseWriter, r *http.Request) {
@@ -170,10 +169,44 @@ func projectDetail(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func projectPost(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	ProjName := r.PostForm.Get("project-name")
+	// ProjStart := r.PostForm.Get("project-start")
+	// ProjEnd := r.PostForm.Get("project-end")
+	ProjDescription := r.PostForm.Get("project-description")
+	ProjTech := r.Form["project-tech"]
+	// ProjDuration := getDuration(ProjStart, ProjEnd)
+
+	var Project = dataProject{
+		Name: ProjName,
+		// Start:       ProjStart,
+		// End:         ProjEnd,
+		Description: ProjDescription,
+		Tech:        ProjTech,
+		// Duration:    ProjDuration,
+	}
+
+	fmt.Println("Project Name : ", Project.Name)
+	fmt.Println("Start Date   : ", Project.Start)
+	fmt.Println("End Date     : ", Project.End)
+	fmt.Println("Duration     : ", Project.Duration)
+	fmt.Println("Description  : ", Project.Description)
+	fmt.Println("Technologies : ", Project.Tech)
+	fmt.Println("================================")
+
+	Projects = append(Projects, Project)
+	http.Redirect(w, r, "/project", http.StatusMovedPermanently)
+}
+
 func projectEdit(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	var tmpl, err = template.ParseFiles("views/project-edit.html")
+	var tmpl, err = template.ParseFiles("views/project-form.html")
 
 	id, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
@@ -191,8 +224,14 @@ func projectEdit(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	dataPage := map[string]interface{}{
+		"Title": "EDIT MY PROJECT",
+		"url":   "/project/e/{{.Project.ID}}",
+	}
+
 	DataDetail := map[string]interface{}{
 		"Data":    Data,
+		"Page":    dataPage,
 		"Project": Project,
 	}
 	w.WriteHeader(http.StatusOK)
@@ -218,19 +257,19 @@ func projectEditPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ProjName := r.PostForm.Get("project-name")
-	ProjStart := r.PostForm.Get("project-start")
-	ProjEnd := r.PostForm.Get("project-end")
+	// ProjStart := r.PostForm.Get("project-start")
+	// ProjEnd := r.PostForm.Get("project-end")
 	ProjDescription := r.PostForm.Get("project-description")
 	ProjTech := r.Form["project-tech"]
-	ProjDuration := getDuration(ProjStart, ProjEnd)
+	// ProjDuration := getDuration(ProjStart, ProjEnd)
 
 	var Project = dataProject{
-		Name:        ProjName,
-		Start:       ProjStart,
-		End:         ProjEnd,
+		Name: ProjName,
+		// Start:       ProjStart,
+		// End:         ProjEnd,
 		Description: ProjDescription,
 		Tech:        ProjTech,
-		Duration:    ProjDuration,
+		// Duration:    ProjDuration,
 	}
 
 	fmt.Println("Project Name : ", Project.Name)
@@ -252,14 +291,10 @@ func projectEditPost(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusMovedPermanently)
 }
 
-func getDuration(start, end string) string {
-
-	// Store Date with the Format
-	DataStart, _ := time.Parse("2006-01-02", start)
-	DataEnd, _ := time.Parse("2006-01-02", end)
+func getDuration(start, end time.Time) string {
 
 	// Get data Range
-	DataRange := DataEnd.Sub(DataStart)
+	DataRange := end.Sub(start)
 
 	// Calc duration
 	yearRange := int(DataRange.Hours() / (12 * 30 * 24))
